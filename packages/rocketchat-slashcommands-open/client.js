@@ -1,33 +1,48 @@
-function Open(command, params/*, item*/) {
-	var room, subscription, type;
+function Open(command, params /*, item*/) {
+	const dict = {
+		'#': ['c', 'p'],
+		'@': ['d']
+	};
+
 	if (command !== 'open' || !Match.test(params, String)) {
 		return;
 	}
-	room = params.trim();
-	if (room.indexOf('#') !== -1) {
-		type = 'c';
-	}
-	if (room.indexOf('@') !== -1) {
-		type = 'd';
-	}
-	room = room.replace('#', '');
-	room = room.replace('@', '');
 
-	var query = {
+	let room = params.trim();
+	const type = dict[room[0]];
+	room = room.replace(/#|@/, '');
+
+	const query = {
 		name: room
 	};
-	if (type) {
-		query['t'] = type;
-	}
-	subscription = ChatSubscription.findOne(query);
 
-	if (subscription !== null) {
-		FlowRouter.go(RocketChat.roomTypes.getRouteLink(subscription.t, subscription));
+	if (type) {
+		query['t'] = {
+			$in: type
+		};
 	}
+
+	const subscription = ChatSubscription.findOne(query);
+
+	if (subscription) {
+		RocketChat.roomTypes.openRouteLink(subscription.t, subscription, FlowRouter.current().queryParams);
+	}
+
+	if (type && type.indexOf('d') === -1) {
+		return;
+	}
+	return Meteor.call('createDirectMessage', room, function(err) {
+		if (err) {
+			return;
+		}
+		const subscription = RocketChat.models.Subscriptions.findOne(query);
+		RocketChat.roomTypes.openRouteLink(subscription.t, subscription, FlowRouter.current().queryParams);
+	});
+
 }
 
 RocketChat.slashCommands.add('open', Open, {
-	description: TAPi18n.__('Opens_a_channel_group_or_direct_message'),
-	params: 'room name',
+	description: 'Opens_a_channel_group_or_direct_message',
+	params: 'room_name',
 	clientOnly: true
 });

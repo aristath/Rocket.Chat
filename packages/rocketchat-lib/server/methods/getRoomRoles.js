@@ -1,6 +1,9 @@
 Meteor.methods({
 	getRoomRoles(rid) {
-		if (!Meteor.userId()) {
+
+		check(rid, String);
+
+		if (!Meteor.userId() && RocketChat.settings.get('Accounts_AllowAnonymousRead') === false) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'getRoomRoles' });
 		}
 

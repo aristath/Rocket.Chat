@@ -6,27 +6,26 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-	api.versionsFrom('1.0');
-
 	api.use([
-		'coffeescript',
+		'mongo',
+		'ecmascript',
 		'underscore',
-		'less@2.5.0',
+		'less',
 		'rocketchat:lib'
 	]);
 
 	api.use('templating', 'client');
 
 	api.addFiles([
-		'client/lib/MentionedMessage.coffee',
+		'client/lib/MentionedMessage.js',
 		'client/views/stylesheets/mentionsFlexTab.less',
 		'client/views/mentionsFlexTab.html',
-		'client/views/mentionsFlexTab.coffee',
-		'client/actionButton.coffee',
-		'client/tabBar.coffee'
+		'client/views/mentionsFlexTab.js',
+		'client/actionButton.js',
+		'client/tabBar.js'
 	], 'client');
 
 	api.addFiles([
-		'server/publications/mentionedMessages.coffee'
+		'server/publications/mentionedMessages.js'
 	], 'server');
 });
